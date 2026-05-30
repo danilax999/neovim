@@ -16,6 +16,7 @@
 ---   return its results, either by yielding (in a spawned coroutine) or
 ---   via `vim.wait` (in other contexts).
 ---
+
 local function class(body)
   return setmetatable(body or {}, {
     __call = function(cls, ...)
@@ -151,19 +152,6 @@ M.listqueue = ListQueue
 --- @type table<thread, boolean>
 local spawned = setmetatable({}, { __mode = 'k' })
 
----@param coro thread
-local function safe_resume(coro)
-  local ok, err = coroutine.resume(coro)
-  if not ok then
-    spawned[coro] = nil
-    vim.schedule(function()
-      vim.notify(
-        string.format("Coroutine resume failed: %s", debug.traceback(coro, err)),
-        vim.log.levels.ERROR)
-    end)
-  end
-end
-
 --- Spawn a detached coroutine that runs a function.
 ---
 --- The coroutine is tracked so `M.await` knows yielding across its
@@ -186,7 +174,7 @@ function M.spawn(func, ...)
   end)
   spawned[coro] = true
 
-  safe_resume(coro)
+  coroutine.resume(coro)
 end
 
 --- Default channel timeout. Time to wait for a channel message in non-spawned context.
@@ -286,7 +274,7 @@ function Chan:send(...)
     if self._message_queue:push(message) then
       for coro in self._recv_queue do
         if coroutine.status(coro) ~= 'dead' then
-          safe_resume(coro)
+          coroutine.resume(coro)
           break
         end
       end
@@ -322,7 +310,7 @@ function Chan:recv()
     if message then
       for coro in self._send_queue do
         if coroutine.status(coro) ~= 'dead' then
-          safe_resume(coro)
+          coroutine.resume(coro)
           break
         end
       end
@@ -366,13 +354,13 @@ function Chan:close()
 
   for coro in self._recv_queue do
     if coroutine.status(coro) ~= 'dead' then
-      safe_resume(coro)
+      coroutine.resume(coro)
     end
   end
 
   for coro in self._send_queue do
     if coroutine.status(coro) ~= 'dead' then
-      safe_resume(coro)
+      coroutine.resume(coro)
     end
   end
 
