@@ -81,6 +81,12 @@ describe('vim.async', function()
       eq(42, chan:recv())
     end)
 
+    it('recv and send', function()
+      local chan = vim.async.chan(5)
+      vim.async.spawn(function() eq(42, chan:recv()) end)
+      vim.async.spawn(function() chan:send(42) end)
+    end)
+
     it('send and recv multiple messages', function()
       local chan = vim.async.chan(10)
       vim.async.spawn(function()
