@@ -90,8 +90,8 @@ function RingQueue:__call()
 end
 
 ---@class vim.async.ListQueueNode<T>
----@field _value T
----@field _next vim.async.ListQueueNode?
+---@field value T
+---@field next vim.async.ListQueueNode?
 
 ---@class vim.async.ListQueue<T>
 ---@field _size number
@@ -113,12 +113,12 @@ end
 
 ---@param item T
 function ListQueue:push(item)
-  local node = { _value = item }
+  local node = { value = item }
   if self:is_empty() then
     self._start = node
     self._end = node
   else
-    self._end._next = node
+    self._end.next = node
     self._end = node
   end
   self._size = self._size + 1
@@ -128,8 +128,8 @@ end
 function ListQueue:pop()
   if self:is_empty() then return nil end
 
-  local item = self._start._value
-  self._start = self._start._next
+  local item = self._start.value
+  self._start = self._start.next
   self._size = self._size - 1
 
   if not self._start then self._end = nil end

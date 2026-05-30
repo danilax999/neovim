@@ -2326,6 +2326,22 @@ vim.validate({name}, {value}, {validator}, {optional}, {message})
 ==============================================================================
 Lua module: vim.async                                              *vim.async*
 
+`vim.async` provides primitives for coroutine-based asynchronous programming
+in Lua. It includes:
+• `RingQueue` and `ListQueue`: bounded and unbounded first-in-first-out queue
+  data structures with `push`/`pop` operations.
+• `spawn()`: run a function in a detached coroutine that is tracked so
+  yielding across resume boundaries is safe.
+• `spawn_wrap()`: wrap a function so it runs in a spawned coroutine each time
+  it is called.
+• `chan()`: create a communication channel with a bounded buffer for passing
+  messages between coroutines, with support for backpressure and graceful
+  close.
+• `await()`: invoke a callback-style async function and synchronously return
+  its results, either by yielding (in a spawned coroutine) or via `vim.wait`
+  (in other contexts).
+
+
 *vim.async.Chan*
     `vim.async.Chan` is a communication channel between coroutines with a
     bounded buffer.
@@ -2403,6 +2419,10 @@ Lua module: vim.async                                              *vim.async*
                     |ListQueue:push()|.
 
 *vim.async.ListQueueNode*
+
+    Fields: ~
+      • {next}   (`vim.async.ListQueueNode?`) See |vim.async.ListQueueNode|.
+      • {value}  (`T`)
 
 *vim.async.RingQueue*
 
