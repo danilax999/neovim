@@ -99,6 +99,13 @@ describe('vim.async', function()
       eq(3, chan:recv())
     end)
 
+    it('send and recv multiple args', function()
+      local chan = vim.async.chan()
+      local args = { 1, 2, 3, 4, 5, 6 }
+      chan:send(unpack(args))
+      eq(args, { chan:recv() })
+    end)
+
     it('close wakes blocked sender', function()
       local chan = vim.async.chan(1)
       chan:send('a')

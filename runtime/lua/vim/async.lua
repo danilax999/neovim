@@ -268,7 +268,7 @@ end
 function Chan:send(...)
   if self._closed then error("Send on closed channel") end
 
-  local message = { ... }
+  local message = { argc = select('#', ...), ... }
 
   while true do
     if self._message_queue:push(message) then
@@ -314,7 +314,7 @@ function Chan:recv()
           break
         end
       end
-      return unpack(message)
+      return unpack(message, 1, message.argc)
     end
 
     if self._closed then return nil end
